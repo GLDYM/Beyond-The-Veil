@@ -405,7 +405,13 @@ public class CraftingRegistryGui extends Screen {
         currentSelectionItem = item;
         selectedTitle = item.getDescription();
         String pTranslateKey = item.getDescriptionId() + ".crafting";
-        if (item == Registration.MEMORY_PHIAL.get() && DataUtil.getBoolean(Minecraft.getInstance().player, PlayerDataLib.REMINISCED.apply(Memory.METAL.getDataName()))) {
+        if (item == Registration.DREAM_BOTTLE.get() && DataUtil.getBoolean(Minecraft.getInstance().player, PlayerDataLib.filled_bottle.name())) {
+            pTranslateKey += "2";
+        } else if (item == Registration.MEMORY_PHIAL.get() && DataUtil.getBoolean(Minecraft.getInstance().player, PlayerDataLib.REMINISCED.apply(Memory.METAL.getDataName()))) {
+            pTranslateKey += "2";
+        } else if (item == Registration.BLACK_MIRROR.get() && DataUtil.getBoolean(Minecraft.getInstance().player, PlayerDataLib.met_mirror.name())) {
+            pTranslateKey += "3";
+        } else if (item == Registration.BLACK_MIRROR.get() && ResearchUtil.getResearchStage(Minecraft.getInstance().player, "SNIPPET_OF_TRUTH") == 1) {
             pTranslateKey += "2";
         }
         String localizedText = I18n.get(pTranslateKey);
@@ -477,7 +483,7 @@ public class CraftingRegistryGui extends Screen {
             super(width, height);
             this.recipe = recipe;
             stacks = recipe.getIngredients().stream().map(Ingredient::getItems).collect(Collectors.toList());
-            this.output = new ItemStack(result);
+            this.output = Minecraft.getInstance().level != null ? recipe.getResultItem(Minecraft.getInstance().level.registryAccess()) : new ItemStack(result);
             this.scaleFactor = scaleFactor;
         }
 
@@ -546,6 +552,7 @@ public class CraftingRegistryGui extends Screen {
                 float outputY = pY + side * 21 / 2F;
                 poseStack.translate(outputX, outputY, 0);
                 graphics.renderItem(output, -8, -8);
+                graphics.renderItemDecorations(Minecraft.getInstance().font, output, -8, -8);
                 poseStack.popPose();
                 if (relativeMouseX >= outputX - 8 && relativeMouseX <= outputX + 8 && relativeMouseY >= outputY - 8 && relativeMouseY <= outputY + 8) {
                     graphics.renderTooltip(Minecraft.getInstance().font, output.getTooltipLines(Minecraft.getInstance().player, TooltipFlag.NORMAL), output.getTooltipImage(), relativeMouseX, relativeMouseY);
